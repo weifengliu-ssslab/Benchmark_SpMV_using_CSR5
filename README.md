@@ -7,6 +7,8 @@ In Proceedings of the 29th ACM international conference on Supercomputing (ICS '
 
 A draft version is downloadable at <a href="http://arxiv.org/abs/1503.05032">http://arxiv.org/abs/1503.05032</a>.
 
+Contact: Weifeng Liu (weifeng.liu _at_ nbi.ku.dk) and/or Brian Vinter (vinter _at_ nbi.ku.dk).
+
 <br><hr>
 <h3>CPU (AVX2) version</h3>
 
