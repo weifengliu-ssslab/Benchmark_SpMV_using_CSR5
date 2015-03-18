@@ -1,4 +1,4 @@
-# bhSPARSE_SpMV_using_CSR5
+# Benchmark_SpMV_using_CSR5
 
 This is the source code of the paper
 
