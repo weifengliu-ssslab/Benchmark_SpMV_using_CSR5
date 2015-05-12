@@ -10,7 +10,7 @@ In Proceedings of the 29th ACM international conference on Supercomputing (ICS '
 
 The camera-ready PDF is downloadable at <a href="http://arxiv.org/abs/1503.05032">http://arxiv.org/abs/1503.05032</a>.
 
-Contact: Weifeng Liu (weifeng.liu _at_ nbi.ku.dk) and Brian Vinter (vinter _at_ nbi.ku.dk).
+Contact: <a href="http://www.nbi.dk/~weifeng/">Weifeng Liu</a> and Brian Vinter (vinter _at_ nbi.ku.dk).
 
 <br><hr>
 <h3>CPU (AVX2) version</h3>
