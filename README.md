@@ -5,10 +5,8 @@
 
 This is the source code of the paper
 
-Weifeng Liu and Brian Vinter. 2015. CSR5: An Efficient Storage Format for Cross-Platform Sparse Matrix-Vector Multiplication. 
-In Proceedings of the 29th ACM international conference on Supercomputing (ICS '15). (To appear).
-
-The camera-ready PDF is downloadable at <a href="http://arxiv.org/abs/1503.05032">http://arxiv.org/abs/1503.05032</a>.
+Weifeng Liu and Brian Vinter, "CSR5: An Efficient Storage Format for Cross-Platform Sparse Matrix-Vector Multiplication". In Proceedings of the 29th ACM international conference on Supercomputing (ICS '15), pp.339-350, 2015. 
+[<a href="http://www.nbi.dk/~weifeng/papers/CSR5_Liu_ics15.pdf">pdf</a>][<a href="http://www.nbi.dk/~weifeng/slides/CSR5_Liu_ics15_slides.pptx">slides</a>]
 
 Contact: <a href="http://www.nbi.dk/~weifeng/">Weifeng Liu</a> and Brian Vinter (vinter _at_ nbi.ku.dk).
 
