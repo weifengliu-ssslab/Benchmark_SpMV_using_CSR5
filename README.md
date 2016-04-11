@@ -37,7 +37,7 @@ Contact: <a href="http://www.nbi.dk/~weifeng/">Weifeng Liu</a> and Brian Vinter 
 2. Run ``make``,
 3. Run ``./spmv example.mtx``.
  
-Update (April 2016): comment a line of code to avoid an nvcc bug in CUDA v7.x. Thanks Shigang Li.
+Update (April 2016): Fixed a bug on timing. Thanks Shigang Li.
 
 - Tested environments
 
