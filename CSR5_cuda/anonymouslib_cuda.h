@@ -179,7 +179,7 @@ int anonymouslibHandle<ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>::asCS
         if (err != ANONYMOUSLIB_SUCCESS)
             return ANONYMOUSLIB_CSR_TO_CSR5_FAILED;
         cudaDeviceSynchronize();
-        tile_desc_time += tile_desc_timer.stop(); // comment this for avoiding a bug in CUDA 7.x
+        tile_desc_time += tile_desc_timer.stop(); // fixed a bug here (April 2016)
 
         if (_num_offsets)
         {
