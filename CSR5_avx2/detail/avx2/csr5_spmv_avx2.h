@@ -16,7 +16,8 @@ inline void partition_fast_track(const vT           *d_value_partition,
                                  const iT            start_row_start,
                                  const vT            alpha,
                                  const int           sigma,
-                                 const int           stride_vT)
+                                 const int           stride_vT,
+                                 const bool          direct)
 {
     __m256d sum256d   = _mm256_setzero_pd();
     __m256d value256d, x256d;
@@ -38,10 +39,14 @@ inline void partition_fast_track(const vT           *d_value_partition,
 
     vT sum = hsum_avx(sum256d);
 
-    if (row_start == start_row_start)
+    if (row_start == start_row_start && !direct)
         d_calibrator[tid * stride_vT] += sum;
-    else
-        d_y[row_start] += sum;
+    else{
+        if(direct)
+            d_y[row_start] = sum;
+        else
+            d_y[row_start] += sum;
+    }
 }
 
 template<typename iT, typename uiT, typename vT>
@@ -110,9 +115,13 @@ void spmv_csr5_compute_kernel(const iT           *d_column_index,
 
             if (row_start == row_stop) // fast track through reduction
             {
+                // check whether the the partition contains the first element of row "row_start"
+                // => we are the first writing data to d_y[row_start]
+                bool fast_direct = (d_partition_descriptor[par_id * ANONYMOUSLIB_CSR5_OMEGA * num_packet] >>
+                                                    (31 - (bit_y_offset + bit_scansum_offset)) & 0x1);
                 partition_fast_track<iT, vT>
                         (d_value_partition, d_x, d_column_index_partition,
-                         d_calibrator, d_y, row_start, par_id, tid, start_row_start, alpha, c_sigma, stride_vT);
+                         d_calibrator, d_y, row_start, par_id, tid, start_row_start, alpha, c_sigma, stride_vT, fast_direct);
             }
             else // normal track for all the other partitions
             {
@@ -135,6 +144,19 @@ void spmv_csr5_compute_kernel(const iT           *d_column_index,
                 scansum_offset128i = _mm_srli_epi32(scansum_offset128i, 32 - bit_scansum_offset);
 
                 descriptor128i = _mm_slli_epi32(descriptor128i, bit_y_offset + bit_scansum_offset);
+                
+                // remember if the first element of this partition is the first element of a new row
+                local_bit256i = _mm256_cvtepu32_epi64(_mm_srli_epi32(descriptor128i, 31));
+                bool first_direct = false;
+                _mm256_store_si256((__m256i *)s_cond, local_bit256i);
+                if(s_cond[0])
+                    first_direct = true;
+                    
+                // remember if the first element of the first partition of the current thread is the first element of a new row
+                bool first_all_direct = false;
+                if(par_id == tid * chunk)
+                    first_all_direct = first_direct;
+                        
                 descriptor128i = _mm_or_si128(descriptor128i, _mm_set_epi32(0, 0, 0, 0x80000000));
 
                 local_bit256i = _mm256_cvtepu32_epi64(_mm_srli_epi32(descriptor128i, 31));
@@ -258,10 +280,15 @@ void spmv_csr5_compute_kernel(const iT           *d_column_index,
                 if (s_cond[2]) d_y_local[s_y_idx[2]] = s_sum[2];
                 if (s_cond[3]) d_y_local[s_y_idx[3]] = s_sum[3];
 
-                if (row_start == start_row_start)
+                // only use calibrator if this partition does not contain the first element of the row "row_start"
+                if (row_start == start_row_start && !first_all_direct)
                     d_calibrator[tid * stride_vT] += s_cond[0] ? s_first_sum[0] : s_sum[0];
-                else
-                    d_y[row_start] += s_cond[0] ? s_first_sum[0] : s_sum[0];
+                else{
+                    if(first_direct)
+                        d_y[row_start] = s_cond[0] ? s_first_sum[0] : s_sum[0];
+                    else
+                        d_y[row_start] += s_cond[0] ? s_first_sum[0] : s_sum[0];
+                }
             }
         }
     }
@@ -298,6 +325,8 @@ void spmv_csr5_tail_partition_kernel(const iT           *d_row_pointer,
                                      const int           sigma,
                                      const vT            alpha)
 {
+    const iT index_first_element_tail = (p - 1) * ANONYMOUSLIB_CSR5_OMEGA * sigma;
+    
     #pragma omp parallel for
     for (iT row_id = tail_partition_start; row_id < m; row_id++)
     {
@@ -308,7 +337,11 @@ void spmv_csr5_tail_partition_kernel(const iT           *d_row_pointer,
         for (iT idx = idx_start; idx < idx_stop; idx++)
             sum += d_value[idx] * d_x[d_column_index[idx]];// * alpha;
 
-        d_y[row_id] = row_id == tail_partition_start ? d_y[row_id] + sum : sum;
+        if(row_id == tail_partition_start && d_row_pointer[row_id] != index_first_element_tail){
+            d_y[row_id] = d_y[row_id] + sum;
+        }else{
+            d_y[row_id] = sum;
+        }
     }
 }
 
