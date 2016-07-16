@@ -14,6 +14,10 @@ Updates:
    (Jul 2016, avx2): Improved performance of y-vector update. Thanks Jan Philipp Ecker!  
    (Jul 2016, avx2): Fixed a bug in processing small matrices. Thanks Jan Philipp Ecker!  
    (Apr 2016, cuda): Fixed a bug in timing. Thanks Shigang Li!  
+
+longer term
+  : multi-line definition
+  a second line (will be subject to flow and wrapping)
   
 <br><hr>
 <h3>CPU (AVX2) version</h3>
