@@ -12,7 +12,9 @@ Contact: <a href="http://www.nbi.dk/~weifeng/">Weifeng Liu</a> and Brian Vinter 
 
 Updates: 
 (Jul 2016, avx2): Improved performance of y-vector update. Thanks Jan Philipp Ecker!
+
 (Jun 2016, avx2): Fixed a bug in processing small matrices. Thanks Jan Philipp Ecker!
+
 (Apr 2016, cuda): Fixed a bug in timing. Thanks Shigang Li!
 
 <br><hr>
