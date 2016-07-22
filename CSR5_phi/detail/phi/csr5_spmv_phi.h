@@ -17,7 +17,8 @@ void partition_fast_track(const vT           *d_value_partition,
                                  const iT            start_row_start,
                                  const vT            alpha,
                                  const int           sigma,
-                                 const int           stride_vT)
+                                 const int           stride_vT,
+                                 const bool          direct)
 {
 
     __m512d sum512d = _mm512_setzero_pd();
@@ -37,10 +38,15 @@ void partition_fast_track(const vT           *d_value_partition,
 
     vT sum = _mm512_reduce_add_pd(sum512d);
 
-    if (row_start == start_row_start)
+    if (row_start == start_row_start && !direct)
         d_calibrator[tid * stride_vT] += sum;
     else
-        d_y[row_start] += sum;
+    {
+        if(direct)
+            d_y[row_start] = sum;
+        else
+            d_y[row_start] += sum;
+    }
 }
 
 template<typename iT, typename uiT, typename vT>
@@ -69,11 +75,12 @@ void spmv_csr5_compute_kernel(const iT           *d_column_index,
     const __m512i c_one512i         = _mm512_set1_epi32(1);
 
     const int stride_vT = ANONYMOUSLIB_X86_CACHELINE / sizeof(vT);
+    const int num_thread_active = ceil((p-1.0)/chunk);
 
     #pragma omp parallel
     {
         int tid = omp_get_thread_num();
-        iT start_row_start = d_partition_pointer[tid * chunk] & 0x7FFFFFFF;
+        iT start_row_start = tid < num_thread_active ? d_partition_pointer[tid * chunk] & 0x7FFFFFFF : 0;
 
         __m512d value512d;
         __m512d x512d;
@@ -137,10 +144,14 @@ void spmv_csr5_compute_kernel(const iT           *d_column_index,
 
             if (row_start == row_stop) // fast track through reduction
             {
+                // check whether the the partition contains the first element of row "row_start"
+                // => we are the first writing data to d_y[row_start]
+                bool fast_direct = (d_partition_descriptor[par_id * ANONYMOUSLIB_CSR5_OMEGA * num_packet] >>
+                                                    (31 - (bit_y_offset + bit_scansum_offset)) & 0x1);
                 partition_fast_track<iT, vT>
                         (d_value_partition, d_x, d_column_index_partition,
                          d_calibrator, d_y, row_start, par_id,
-                         tid, start_row_start, alpha, c_sigma, stride_vT);
+                         tid, start_row_start, alpha, c_sigma, stride_vT, fast_direct);
             }
             else // normal track for all the other partitions
             {
@@ -176,6 +187,17 @@ void spmv_csr5_compute_kernel(const iT           *d_column_index,
                 descriptor512i = _mm512_slli_epi32(descriptor512i, bit_y_offset + bit_scansum_offset);
 
                 local_bit16 = _mm512_cmp_epi32_mask(_mm512_srli_epi32(descriptor512i, 31), c_one512i, _MM_CMPINT_EQ);
+                
+                // remember if the first element of this partition is the first element of a new row
+                bool first_direct = false;
+                if(local_bit16 & 0x1)
+                    first_direct = true;
+                    
+                // remember if the first element of the first partition of the current thread is the first element of a new row
+                bool first_all_direct = false;
+                if(par_id == tid * chunk)
+                    first_all_direct = first_direct;
+                    
                 local_bit16 |= 0x1;
 
                 start512i = _mm512_mask_blend_epi32(local_bit16, c_one512i, _mm512_setzero_epi32());
@@ -285,10 +307,15 @@ void spmv_csr5_compute_kernel(const iT           *d_column_index,
                 sum512d = _mm512_mask_blend_pd(0x1, c_zero512d, sum512d);
                 vT sum = _mm512_mask_reduce_add_pd(0x1, sum512d);
 
-                if (row_start == start_row_start)
+                if (row_start == start_row_start && !first_all_direct)
                     d_calibrator[tid * stride_vT] += sum;
                 else
-                    d_y[row_start] += sum;
+                {
+                    if(first_direct)
+                        d_y[row_start] = sum;
+                    else
+                        d_y[row_start] += sum;
+                }
 
             }
         }
@@ -305,7 +332,9 @@ void spmv_csr5_calibrate_kernel(const uiT *d_partition_pointer,
     const int num_thread = omp_get_max_threads();
     const int chunk = ceil((double)(p-1) / (double)num_thread);
     const int stride_vT = ANONYMOUSLIB_X86_CACHELINE / sizeof(vT);
-    const int num_cali = num_thread > (p-1) ? (p-1) : num_thread;
+    // calculate the number of maximal active threads (for a static loop scheduling with size chunk)
+    int num_thread_active = ceil((p-1.0)/chunk);
+    int num_cali = num_thread_active < num_thread ? num_thread_active : num_thread;
 
     for (int i = 0; i < num_cali; i++)
     {
@@ -326,6 +355,8 @@ void spmv_csr5_tail_partition_kernel(const iT           *d_row_pointer,
                                      const int           sigma,
                                      const vT            alpha)
 {
+    const iT index_first_element_tail = (p - 1) * ANONYMOUSLIB_CSR5_OMEGA * sigma;
+    
     for (iT row_id = tail_partition_start; row_id < m; row_id++)
     {
         const iT idx_start = row_id == tail_partition_start ? (p - 1) * ANONYMOUSLIB_CSR5_OMEGA * sigma : d_row_pointer[row_id];
@@ -335,7 +366,14 @@ void spmv_csr5_tail_partition_kernel(const iT           *d_row_pointer,
         for (iT idx = idx_start; idx < idx_stop; idx++)
             sum += d_value[idx] * d_x[d_column_index[idx]];// * alpha;
 
-        d_y[row_id] = row_id == tail_partition_start ? d_y[row_id] + sum : sum;
+        if(row_id == tail_partition_start && d_row_pointer[row_id] != index_first_element_tail)
+        {
+            d_y[row_id] = d_y[row_id] + sum;
+        }
+        else
+        {
+            d_y[row_id] = sum;
+        }
     }
 }
 
