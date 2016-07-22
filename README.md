@@ -10,6 +10,11 @@ Weifeng Liu and Brian Vinter, "CSR5: An Efficient Storage Format for Cross-Platf
 
 Contact: <a href="http://www.nbi.dk/~weifeng/">Weifeng Liu</a> and Brian Vinter (vinter _at_ nbi.ku.dk).
 
+Updates:  
+&nbsp;&nbsp;&nbsp;(Jul 2016, avx2): Improved performance of y-vector update. Thanks Jan Philipp Ecker!  
+&nbsp;&nbsp;&nbsp;(Jul 2016, avx2): Fixed a bug in processing small matrices. Thanks Jan Philipp Ecker!  
+&nbsp;&nbsp;&nbsp;(Apr 2016, cuda): Fixed a bug in timing. Thanks Shigang Li!  
+  
 <br><hr>
 <h3>CPU (AVX2) version</h3>
 
@@ -36,8 +41,6 @@ Contact: <a href="http://www.nbi.dk/~weifeng/">Weifeng Liu</a> and Brian Vinter 
 1. Set CUDA path in the Makefile,
 2. Run ``make``,
 3. Run ``./spmv example.mtx``.
- 
-Update (April 2016): Fixed a bug on timing. Thanks Shigang Li.
 
 - Tested environments
 
