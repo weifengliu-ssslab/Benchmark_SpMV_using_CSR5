@@ -11,6 +11,7 @@ Weifeng Liu and Brian Vinter, "CSR5: An Efficient Storage Format for Cross-Platf
 Contact: <a href="http://www.nbi.dk/~weifeng/">Weifeng Liu</a> and Brian Vinter (vinter _at_ nbi.ku.dk).
 
 Updates:  
+&nbsp;&nbsp;&nbsp;(Jan 2017, avx512 and opencl): added two versions: AVX512 for Knights Landing Phi (KNL) and OpenCL for nVidia GPUs.  
 &nbsp;&nbsp;&nbsp;(Jul 2016, phi): fixed the same two issues in the original AVX2 version. Thanks Jan Philipp Ecker!  
 &nbsp;&nbsp;&nbsp;(Jul 2016, avx2): Improved performance of y-vector update. Thanks Jan Philipp Ecker!  
 &nbsp;&nbsp;&nbsp;(Jul 2016, avx2): Fixed a bug in processing small matrices. Thanks Jan Philipp Ecker!  
@@ -29,6 +30,23 @@ Updates:
 
 1. Intel Core i7-4770R CPU with Ubuntu 14.04 64-bit Linux installed.
 2. Intel Xeon E5-2667 v3 dual-socket CPUs with Redhat 6.5 64-bit Linux installed.
+
+- Data type
+
+1. Currently, only 64-bit double precision SpMV is supported.
+
+<br><hr>
+<h3>Intel Xeon Kinghts Landing Phi (KNL) AVX-512 version</h3>
+
+- Execution
+
+1. Set environments for the Intel C/C++ Compilers. For example, use ``source /opt/intel/composer_xe_2015.1.133/bin/compilervars.sh intel64``,
+2. Run ``make``,
+3. Run ``./spmv example.mtx``.
+
+- Tested environments
+
+1. Intel Xeon Kinghts Landing Phi (KNL) 7210 in a host with CentOS 7.2 64-bit Linux installed.
 
 - Data type
 
@@ -70,6 +88,25 @@ Updates:
 1. The code supports both double precision and single precision SpMV. Use ``make VALUE_TYPE=double`` for double precision or ``make VALUE_TYPE=float`` for single precision.
 
 <br><hr>
+<h3>nVidia GPU (OpenCL) version</h3>
+
+- Execution
+
+1. Set OpenCL path in the Makefile,
+2. Run ``make``,
+3. Run ``./spmv example.mtx``.
+
+- Tested environments
+
+1. nVidia Pascal GTX 1060 GPU in a host with Ubuntu 15.04 64-bit Linux installed.
+
+- Data type
+
+1. The code supports both double precision and single precision SpMV. Use ``make VALUE_TYPE=double`` for double precision or ``make VALUE_TYPE=float`` for single precision.
+
+
+
+<br><hr>
 <h3>Intel Xeon Phi (KNC) version</h3>
 
 - Execution
@@ -85,3 +122,4 @@ Updates:
 - Data type
 
 1. Currently, only 64-bit double precision SpMV is supported.
+
