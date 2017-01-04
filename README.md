@@ -11,7 +11,7 @@ Weifeng Liu and Brian Vinter, "CSR5: An Efficient Storage Format for Cross-Platf
 Contact: <a href="http://www.nbi.dk/~weifeng/">Weifeng Liu</a> and Brian Vinter (vinter _at_ nbi.ku.dk).
 
 Updates:  
-&nbsp;&nbsp;&nbsp;(Jan 2017, avx512 and opencl): added two versions: AVX512 for Knights Landing Phi (KNL) and OpenCL for nVidia GPUs.  
+&nbsp;&nbsp;&nbsp;(Jan 2017, avx512 and opencl): added two versions: AVX-512 for Knights Landing Phi (KNL) and OpenCL for nVidia GPUs.  
 &nbsp;&nbsp;&nbsp;(Jul 2016, phi): fixed the same two issues in the original AVX2 version. Thanks Jan Philipp Ecker!  
 &nbsp;&nbsp;&nbsp;(Jul 2016, avx2): Improved performance of y-vector update. Thanks Jan Philipp Ecker!  
 &nbsp;&nbsp;&nbsp;(Jul 2016, avx2): Fixed a bug in processing small matrices. Thanks Jan Philipp Ecker!  
@@ -36,7 +36,7 @@ Updates:
 1. Currently, only 64-bit double precision SpMV is supported.
 
 <br><hr>
-<h3>Intel Xeon Kinghts Landing Phi (KNL) AVX-512 version</h3>
+<h3>Intel Xeon Knights Landing Phi (KNL) AVX-512 version</h3>
 
 - Execution
 
@@ -103,7 +103,6 @@ Updates:
 - Data type
 
 1. The code supports both double precision and single precision SpMV. Use ``make VALUE_TYPE=double`` for double precision or ``make VALUE_TYPE=float`` for single precision.
-
 
 
 <br><hr>
