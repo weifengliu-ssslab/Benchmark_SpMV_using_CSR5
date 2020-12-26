@@ -59,14 +59,17 @@ int call_anonymouslib(int m, int n, int nnzA,
     // warm up by running 50 times
     if (NUM_RUN)
     {
-        for (int i = 0; i < 50; i++)
-            err = A.spmv(alpha, y_bench);
+        for (int i = 0; i < 50; i++) {
+            memset(y,0,sizeof(double )*m);
+            err = A.spmv(alpha, y);
+        }
 
         anonymouslib_timer CSR5Spmv_timer;
         CSR5Spmv_timer.start();
 
-        for (int i = 0; i < NUM_RUN; i++)
+        for (int i = 0; i < NUM_RUN; i++) {
             err = A.spmv(alpha, y_bench);
+        }
 
         double CSR5Spmv_time = CSR5Spmv_timer.stop() / (double)NUM_RUN;
 

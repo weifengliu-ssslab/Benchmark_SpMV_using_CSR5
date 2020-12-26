@@ -248,7 +248,7 @@ void spmv_csr5_compute_kernel(const iT           *d_column_index,
                 tmp256i = _mm256_cmpeq_epi64(start256i, _mm256_set1_epi64x(0x1));
                 sum256d = _mm256_and_pd(_mm256_castsi256_pd(tmp256i), first_sum256d);
 
-                sum256d = _mm256_permute4x64_pd(sum256d, 0xFFFFFF39);
+                sum256d = _mm256_permute4x64_pd(sum256d, 0x39);
                 sum256d = _mm256_and_pd(_mm256_castsi256_pd(_mm256_setr_epi64x(0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, 0x0000000000000000)), sum256d);
 
                 tmp_sum256d = sum256d;
@@ -368,6 +368,8 @@ int csr5_spmv(const int                 sigma,
 {
     int err = ANONYMOUSLIB_SUCCESS;
 
+    const int num_thread = omp_get_max_threads();
+    memset(calibrator,0,ANONYMOUSLIB_X86_CACHELINE*num_thread);
     spmv_csr5_compute_kernel
             <ANONYMOUSLIB_IT, ANONYMOUSLIB_UIT, ANONYMOUSLIB_VT>
             (column_index, value, row_pointer, x,
