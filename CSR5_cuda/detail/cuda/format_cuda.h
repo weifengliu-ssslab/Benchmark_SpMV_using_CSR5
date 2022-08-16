@@ -16,6 +16,7 @@ int format_warmup()
         warmup_kernel<<< num_blocks, num_threads >>>(d_scan);
 
     checkCudaErrors(cudaFree(d_scan));
+    return ANONYMOUSLIB_SUCCESS;
 }
 
 template<typename iT, typename uiT>

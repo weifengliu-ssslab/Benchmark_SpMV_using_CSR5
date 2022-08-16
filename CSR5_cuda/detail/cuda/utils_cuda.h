@@ -65,7 +65,7 @@ void sum_32(volatile  T *s_sum,
     s_sum[local_id] += s_sum[local_id + 1];
 }
 
-#if __CUDA_ARCH__ <= 300
+#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ <= 300
 
 __device__ __forceinline__
 double __shfl_down(double var, unsigned int srcLane, int width=32)
@@ -336,6 +336,7 @@ void fetch_x(cudaTextureObject_t  d_x_tex,
     *x = __hiloint2double(x_int2.y, x_int2.x);
 }
 
+#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ < 600
 __forceinline__ __device__
 static double atomicAdd(double *addr, double val)
 {
@@ -352,6 +353,7 @@ static double atomicAdd(double *addr, double val)
 
     return old;
 }
+#endif
 
 __global__
 void warmup_kernel(int *d_scan)
