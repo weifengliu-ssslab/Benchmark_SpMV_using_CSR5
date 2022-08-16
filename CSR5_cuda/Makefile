@@ -8,9 +8,9 @@ NUM_RUN = 1000
 
 #CUDA_PARAMETERS
 #NVCC_FLAGS = -O3  -w -m64 -arch=sm_30
-NVCC_FLAGS = -O3  -w -m64 -gencode=arch=compute_52,code=sm_52 -gencode=arch=compute_52,code=compute_52
-CUDA_INSTALL_PATH = /usr/local/cuda-6.5
-CUDA_INCLUDES = -I$(CUDA_INSTALL_PATH)/include -I/home/user/NVIDIA_CUDA-6.5_Samples/common/inc
+NVCC_FLAGS = -O3  -w -m64 -gencode=arch=compute_52,code=sm_52 -gencode=arch=compute_52,code=compute_52 -Xcompiler -fpermissive
+CUDA_INSTALL_PATH = /usr/local/cuda
+CUDA_INCLUDES = -I$(CUDA_INSTALL_PATH)/include -I/home/barbatos/Documents/cuda-samples/Common
 CUDA_LIBS = -L$(CUDA_INSTALL_PATH)/lib64 -lcudart
 
 cuda:
